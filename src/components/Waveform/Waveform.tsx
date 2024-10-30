@@ -7,7 +7,6 @@ import React, {
   useState,
 } from 'react';
 import {
-  PanResponder,
   ScrollView,
   View,
   type LayoutRectangle,
@@ -54,7 +53,6 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
     scrubColor,
     onPlayerStateChange,
     onRecorderStateChange,
-    onPanStateChange = () => {},
     onError = () => {},
     onCurrentProgressChange = () => {},
     candleHeightScale = 3,
@@ -65,13 +63,10 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
   const isLayoutCalculated = useRef<boolean>(false);
   const [waveform, setWaveform] = useState<number[]>([]);
   const [viewLayout, setViewLayout] = useState<LayoutRectangle | null>(null);
-  const [seekPosition, setSeekPosition] = useState<NativeTouchEvent | null>(
-    null
-  );
+  const [seekPosition] = useState<NativeTouchEvent | null>(null);
   const [songDuration, setSongDuration] = useState<number>(0);
   const [noOfSamples, setNoOfSamples] = useState<number>(0);
   const [currentProgress, setCurrentProgress] = useState<number>(0);
-  const [panMoving, setPanMoving] = useState(false);
   const [playerState, setPlayerState] = useState(PlayerState.stopped);
   const [recorderState, setRecorderState] = useState(RecorderState.stopped);
   const audioSpeed: number =
@@ -426,21 +421,11 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
           (viewLayout?.width ?? 1);
         const clampedSeekAmount = clamp(seekAmount, 0, 1);
 
-        if (!panMoving) {
-          seekToPlayer({
-            playerKey: `PlayerFor${path}`,
-            progress: clampedSeekAmount * songDuration,
-          });
-          if (playerState === PlayerState.playing) {
-            startPlayerAction();
-          }
-        }
-
         setCurrentProgress(clampedSeekAmount * songDuration);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seekPosition, panMoving, mode, songDuration]);
+  }, [seekPosition, mode, songDuration]);
 
   useEffect(() => {
     const tracePlayerState = onDidFinishPlayingAudio(async data => {
@@ -510,19 +495,6 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recorderState]);
 
-  useEffect(() => {
-    if (panMoving) {
-      if (playerState === PlayerState.playing) {
-        pausePlayerAction();
-      }
-    } else {
-      if (playerState === PlayerState.paused) {
-        startPlayerAction();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [panMoving]);
-
   const calculateLayout = (): void => {
     viewRef.current?.measureInWindow((x, y, width, height) => {
       setViewLayout({ x, y, width, height });
@@ -532,31 +504,6 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
       }
     });
   };
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => {
-        if (!isLayoutCalculated.current) {
-          calculateLayout();
-        }
-
-        return true;
-      },
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: () => {
-        setPanMoving(true);
-        (onPanStateChange as Function)(true);
-      },
-      onPanResponderStart: () => {},
-      onPanResponderMove: event => {
-        setSeekPosition(event.nativeEvent);
-      },
-      onPanResponderEnd: () => {
-        (onPanStateChange as Function)(false);
-        setPanMoving(false);
-      },
-    })
-  ).current;
 
   useEffect(() => {
     if (!isNil(onCurrentProgressChange)) {
@@ -580,13 +527,8 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
       <View
         ref={viewRef}
         style={styles.waveformInnerContainer}
-        onLayout={calculateLayout}
-        {...(mode === 'static' ? panResponder.panHandlers : {})}>
-        <ScrollView
-          horizontal
-          ref={scrollRef}
-          style={styles.scrollContainer}
-          scrollEnabled={mode === 'live'}>
+        onLayout={calculateLayout}>
+        <ScrollView horizontal ref={scrollRef} style={styles.scrollContainer}>
           {waveform?.map?.((amplitude, indexCandle) => (
             <WaveformCandle
               key={indexCandle}
