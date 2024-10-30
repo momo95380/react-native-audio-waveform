@@ -266,12 +266,4 @@ class AudioWaveform: RCTEventEmitter {
           reject(Constants.audioWaveforms, "Can not pause player, Player key is null", NSError())
         }
     }
-
-    func disableGestures() {
-        if let gestureRecognizers = self.view?.gestureRecognizers {
-            for gesture in gestureRecognizers {
-                gesture.isEnabled = false
-            }
-        }
-    }
 }

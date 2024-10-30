@@ -76,7 +76,6 @@ export const Waveform = forwardRef<IWaveformRef, IWaveform>((props, ref) => {
     extractWaveformData,
     preparePlayer,
     getDuration,
-    seekToPlayer,
     playPlayer,
     stopPlayer,
     pausePlayer,
