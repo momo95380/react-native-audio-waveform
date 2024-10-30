@@ -14,6 +14,16 @@ class EventEmitter {
   }
 
   func dispatch(name: String, body: Any?) {
+    // Check if the event is a gesture-related event and ignore it
+    if name.lowercased().contains("gesture") || 
+       name.lowercased().contains("swipe") || 
+       name.lowercased().contains("tap") || 
+       name.lowercased().contains("pinch") || 
+       name.lowercased().contains("pan") || 
+       name.lowercased().contains("rotate") || 
+       name.lowercased().contains("press") {
+      return
+    }
     EventEmitter.eventEmitter.sendEvent(withName: name, body: body)
   }
 
@@ -21,6 +31,7 @@ class EventEmitter {
   lazy var allEvents: [String] = {
     var allEventNames: [String] = ["onDidFinishPlayingAudio", "onCurrentDuration", "onCurrentExtractedWaveformData", "onCurrentRecordingWaveformData"]
     
+    // Ensure gesture events are not included
     // Append all events here
     
     return allEventNames

@@ -1,5 +1,5 @@
 {
-  "name": "@simform_solutions/react-native-audio-waveform",
+  "name": "react-native-audio-waveform-speededup",
   "version": "2.1.1",
   "description": "A React Native component to show audio waveform with ease in react native application",
   "main": "lib/index",
@@ -63,7 +63,7 @@
     "babel-jest": "^27.4.6",
     "eslint": "^7.32.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "husky": "^8.0.1",
+    "husky": "^8.0.3",
     "jest": "^27.4.7",
     "lint-staged": "^11.1.2",
     "metro-react-native-babel-preset": "^0.70.3",
