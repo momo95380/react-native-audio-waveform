@@ -82,9 +82,9 @@ enum FinishMode : Int{
 //Note: If you are making change here, please make sure to make change in Android and React Native side as well other wise there will be mismatch in value
 //Use same values in Android and React native side as well
 enum UpdateFrequency : Double {
-    case high = 250.0
-  case medium = 500.0
-  case low = 1000.0
+    case high = 20.0
+  case medium = 50.0
+  case low = 100.0
 }
 /// Creates an 2D array of floats
 public typealias FloatChannelData = [[Float]]
